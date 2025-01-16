@@ -7,6 +7,7 @@ import re
 
 # Template engine
 from jinja2 import Environment, FileSystemLoader
+from jinja2.ext import loopcontrols
 from html2text import html2text
 
 # Logging
@@ -125,6 +126,7 @@ class ReadmeClass:
 
         self.curation_dict = self.config_dict['curation']
         self.root_directory_main = self.curation_dict[self.curation_dict['parent_dir']]
+        self.funders_macro = join(self.curation_dict['macros_folder'], self.curation_dict['funders_macro'])
 
         # Always obtain current data curation stage
         self.mc = move.MoveClass(curation_dict=self.curation_dict)
@@ -260,6 +262,10 @@ class ReadmeClass:
 
         dest_file = join(self.metadata_path, self.readme_template)
 
+        funders_macro_file_src = join(dirname(__file__), 'templates',
+                                self.funders_macro)
+        funders_macro_file_dest = join(self.metadata_path, self.curation_dict['funders_macro'])
+
         if not exists(dest_file):
             self.log.info(f"Saving {self.readme_template} template in METADATA ...")
 
@@ -271,6 +277,7 @@ class ReadmeClass:
 
             self.log.info(f"Source file name: {src_file}")
             shutil.copy(src_file, dest_file)
+            shutil.copy(funders_macro_file_src, funders_macro_file_dest)
         else:
             self.log.info(f"{dest_file} exists. Not overwriting template!")
 
@@ -283,7 +290,7 @@ class ReadmeClass:
         """Returns a jinja2 template by importing README markdown template (README_template.md)"""
 
         file_loader = FileSystemLoader(self.metadata_path)
-        env = Environment(loader=file_loader, lstrip_blocks=True, trim_blocks=True)
+        env = Environment(loader=file_loader, lstrip_blocks=True, trim_blocks=True, extensions=[loopcontrols])
 
         jinja_template = env.get_template(self.default_readme_file)
         return jinja_template
@@ -365,8 +372,14 @@ class ReadmeClass:
             self.log.info("No footer to strip")
             readme_dict['description'] = description
 
+        # Retrieve funder details as a list of dicts
+        readme_dict['funders'] = self.article_dict['item']['funding_list']
+
         # Retrieve references as list
         readme_dict['references'] = self.article_dict['item']['references']
+
+        # Retrieve related materials as a list of dicts
+        readme_dict['related_materials'] = self.article_dict['item']['related_materials']
 
         return readme_dict
 

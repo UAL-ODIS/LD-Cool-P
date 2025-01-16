@@ -43,6 +43,22 @@ DOI:
 
 
 {% endif %}
+{% if figshare_dict.funders != [] %}
+---------------------------------------------
+## Funding Information
+
+{% import 'funders_macro.jinja' as funds %}
+{% for funder in figshare_dict.funders -%}
+{% if funder.is_user_defined == 0 -%}
+{{ funds.funders_(funder) }}
+{% else %}
+- {{ funder.title }}
+{% endif %}
+{%- endfor %}
+
+
+
+{% endif %}
 {% if qualtrics_dict.files != 'nan' %}
 ---------------------------------------------
 ## Files and Folders
@@ -87,9 +103,9 @@ The roles are defined by the CRediT taxonomy http://credit.niso.org/
 This item is part of the University of Arizona Libraries 2021 Data Visualization Challenge, which is available here:
 https://doi.org/10.25422/azu.data.c.5405493
 
-{% if figshare_dict.references != [] %}
-Links:
-{% for reference in figshare_dict.references %}
-  - {{ reference }}
+{% if figshare_dict.related_materials != [] %}
+Related Materials:
+{% for material in figshare_dict.related_materials %}
+  - {{ material.relation }}: {{ material.title }} ({{ material.link }}) 
 {% endfor -%}
 {% endif %}

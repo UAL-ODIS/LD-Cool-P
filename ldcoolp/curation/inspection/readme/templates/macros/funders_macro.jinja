@@ -1,0 +1,28 @@
+{% macro funders_(given_funder) -%}
+ {% set funders = {
+   'National Science Foundation': ['Directorate for Biological Sciences',
+                                   'Directorate for Computer and Information Science and Engineering',
+                                   'Directorate for Engineering',
+                                   'Directorate of Geosciences',
+                                   'Directorate for Mathematical and Physical Sciences',
+                                   'Directorate for Social, Behavioral and Economic Sciences',
+                                   'Directorate for STEM Education',
+                                   'Directorate for Technology, Innovation and Partnerships'
+                                   ]
+ } %}
+{% set ns = namespace(given_funder_found = false) %}
+{% for funder, offices in funders.items() -%}
+{% if given_funder.funder_name in offices -%}
+{% set ns.given_funder_found = true %}
+- {{ funder }} (Grant no: {{ given_funder.grant_code }})
+  {{ given_funder.url }}
+{% break %}
+{% else %}
+{% set ns.given_funder_found = false %}
+{%- endif %}
+{%- endfor %}
+{% if ns.given_funder_found == false -%}
+- {{ given_funder.funder_name}} (Grant no: {{ given_funder.grant_code }})
+  {{ given_funder.url }}
+{%- endif %}
+{%- endmacro %}
